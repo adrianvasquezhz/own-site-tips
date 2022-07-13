@@ -7,12 +7,100 @@
     <title>Document</title>
 </head>
 <body>
-    TYPESCRIPT:
+    <h5>TYPESCRIPT:</h5>
     * Como declarar un tipo Array con multiples (y seleccionadas) opciones.
         declare type Arr = (type1 | type2 | type3 | ...)[]
 		
-	GIT:
+	* En Typescript, si defino un get y no un set la propiedad se vuelve read-only (como si usara un readonly modificador). Los "metodos get y set" son como nuevas propiedades,
+	que les defines explicitamente si pueden ser obtenidas(get) o establecidas (set). Asi que, si se crea un get method sin set, no se le puede asignar un valor ni siquiera
+	en el constructor.
+		
+	<h5>GIT:</h5>
 	* Esta atento a todos los cambios, (crear, cambiar, eliminar) archivos, y desde ahi
 		se puede hacer commits, donde se vera reflejado si elimine un archivo por ejemplo.
+		
+	<h5>IMMUTABLE CLASS IN OOP</h5>
+	* Tal parece que para crear propiedades inmutable en clases puedo hacer de 2 formas:
+	
+		1. Crear una propiedad privada con _(name)
+		y agregarle unos metodos de acceso para acceder a esas propiedades.
+		
+		class Person
+		{
+			private _name: string;
+			
+			get name()
+			{
+				return this._name;
+			}
+			
+			// de ser necesario tbm un metodo setter pero pierde la inmutabilidad por lo que no se hace mucho.
+		}
+		
+		2. Y la otra forma es simplemente el modificador readonly, parece que hace lo mismo que la primera forma, pero es muy sencilla
+		de hacer, y no hay necesidad de crear otra propiedad auxiliar con el prefijo de "_". // Es lo que yo creo por ahora,
+		a lo mejor la primera forma tiene otras utilidades.
+		
+		Comment: Principales diferencias entre ambos: El primero usa private en la propiedad y establecer modificador de acceso. El segundo simplemente usa readonly.
+		
+		EDIT: La primera forma es muy util porque agrega la posibilidad de hacer cosas antes de dar(get) o establecer(set) el valor de la propiedad, por ejemplo:
+		Tenemos una propiedad que es una lista o array, que contiene methodos que pueden modificar el array, esto solo por ser referenciado el array (ya que es un "reference type"). Explicacion grafica:
+			
+			class Student
+			{
+				readonly name: string;  // aca solo usamos readonly para hacerlo inmutable porque no hay otra manera de que pueda ser mutado.
+				private _courses: string[];  // aca usamos private porque un array tiene metodos que pueden modificar el array aunque sea readonly, esta propiedad es una propiedad
+												auxiliar y usaremos "get courses()" para hacer unos ajustes antes de dar el valor de la propiedad.
+				
+				get courses()
+				{
+					return this._courses.slice();  // de este modo cada vez que se pida courses, se estara dando una copia de _courses, haciendolo inmutable. Asi que, si usa un
+													.push method, estara pusheando a la copia, no al original, cuando pida otra vez el valor, este seguira igual que antes.
+				}
+			}
+			
+		TIP: Asi como se usa slice() para crear un array inmutable, se puede usar Object.assign() para crear un objeto inmutable.
+		
+		
+		Por otro lado, tambien podemos evitar mutar objetos en funciones para respetar el principio de inmutabilidad, por ejemplo:
+			TS | JS
+			const obj = { name: "Bob", age: 20 }
+			
+			<INCORRECT>
+			function nameToUpper(o)
+			{
+				o.map(el => {
+					o.name = o.name.toUpperCase()
+					return el
+				})
+			}
+			
+			<CORRECT>
+			Una manera de varias posibles es:
+			
+			function nameToUpper(o)
+			{
+				o.map(el => {
+					return { ...el, name: el.name.toUpperCase() }
+				})
+			}
+			
+			En la manera incorrecta, como el metodo map recorre todos los elementos del array, nuestro parametro "el" sera referenciado a cada uno de los elementos del array (por ser
+			objectos ademas), asi que, cuando accedemos y modifiquemos a las propiedades de nuestro parametro "el" estaremos tambien modificando los de los objetos originales.
+			Por lo tanto, la manera correcta es creando un objeto nuevo y return-neandolo en el callback pasado al metodo map(). Todo eso hara que la nueva copia que crea el metodo
+			map() tengo nuevos objetos y no mute los del array original, haciendolo cumplir tambien el concepto de funcion pura (al no modificar cosas fuera de su rango).
+	
+	
+	
+	<h5>HACK TIP: CALCULAR EL % y/o sumarle al total de manera rapida</h5>
+	NumTotal * 1.(N%) = El total mas su N%
+	NumTotal * 0.(N%) = El porcentaje calculado del NumTotal
+	
+	Ejemplo:
+		El IGV(18%) de 2500:
+			2500 * 0.18 = 450
+		
+		El Total mas IGV(18%) de 2500:
+			2500 * 1.18 = 2950
 </body>
 </html>
